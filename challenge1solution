@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#define MAX_PACKET_DATA_LENGTH (50)
+
+typedef struct data_packet_t 
+{
+  uint8_t id;
+  uint8_t data_length;
+  uint8_t data[MAX_PACKET_DATA_LENGTH];
+  uint16_t crc;
+} data_packet_t;
+
+uint16_t calculate_crc(data_packet_t *packet) 
+{
+  uint16_t crc = 0;
+  for (int i = 0; i < packet->data_length; i++) 
+  {
+    crc = crc ^ packet->data[i];
+  }
+  return crc;
+}
+
+bool is_data_packet_corrupted(data_packet_t *packet) 
+{
+  uint16_t calculated_crc = calculate_crc(packet);
+  if (calculated_crc != packet->crc) 
+  {
+    return true;
+  }
+  return false;
+}
+
+int main() 
+{
+  data_packet_t packet;
+  packet.id = 2; // Change the ID to 2
+  packet.data_length = 5; // Change the data length to 5
+  packet.data[0] = 10; // Change the first element to 10
+  packet.data[1] = 20; // Change the second element to 20
+  // Modify other elements as needed
+  packet.crc = 12345; // Change the CRC checksum to 12345
+
+  printf("Packet is %scorrupted.\n", is_data_packet_corrupted(&packet) ? "":"not ");
+
+  return 0;
+}
